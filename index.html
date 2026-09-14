@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHISH! Cyber Detective</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Montserrat', 'Times New Roman', Times, serif;
+        background: #10152b;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .game {
+        width: 100%;
+        max-width: 900px;
+        background: #181f3a;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    /* HEADER */
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .logo {
+        font-size: 28px;
+        font-weight: 900;
+        color: #7df9ff;
+    }
+
+    .stats {
+        display: flex;
+        gap: 15px;
+    }
+
+    .stat {
+        background: #242d50;
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+
+    /* SCREENS */
+
+    .screen {
+        display: none;
+    }
+
+    .screen.active {
+        display: block;
+    }
+
+    /* START */
+
+    .start-screen {
+        text-align: center;
+        padding: 60px 20px;
+    }
+
+    .shield {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: 56px;
+        margin-bottom: 15px;
+        color: #7df9ff;
+    }
+
+    .subtitle {
+        color: #b9c1dd;
+        font-size: 19px;
+        line-height: 1.6;
+        max-width: 650px;
+        margin: auto;
+    }
+
+    .start-btn {
+        margin-top: 35px;
+        padding: 16px 35px;
+        border: none;
+        border-radius: 14px;
+        background: #7df9ff;
+        color: #10152b;
+        font-size: 18px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .start-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(125,249,255,0.3);
+    }
+
+    /* QUESTION */
+
+    .progress {
+        width: 100%;
+        height: 8px;
+        background: #303a60;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: #7df9ff;
+        width: 0%;
+        transition: width 0.4s;
+    }
+
+    .round {
+        color: #8e9ac5;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .question {
+        font-size: 27px;
+        margin-bottom: 25px;
+        line-height: 1.3;
+    }
+
+    /* MESSAGE */
+
+    .message {
+        background: #f8f9ff;
+        color: #171b30;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .message-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    .avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #dce3ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+    }
+
+    .sender {
+        font-weight: bold;
+    }
+
+    .email {
+        color: #777;
+        font-size: 13px;
+    }
+
+    .message-body {
+        font-size: 17px;
+        line-height: 1.7;
+    }
+
+    .fake-link {
+        color: #1769ff;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    /* ANSWERS */
+
+    .answers {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .answer {
+        padding: 18px;
+        border: 2px solid #394466;
+        background: #222a4a;
+        color: white;
+        border-radius: 14px;
+        cursor: pointer;
+        font-size: 17px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .answer:hover {
+        border-color: #7df9ff;
+        transform: translateY(-2px);
+    }
+
+    .safe:hover {
+        border-color: #61e294;
+    }
+
+    .phish:hover {
+        border-color: #ff6b8a;
+    }
+
+    /* FEEDBACK */
+
+    .feedback {
+        display: none;
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 15px;
+        line-height: 1.6;
+    }
+
+    .feedback.correct {
+        display: block;
+        background: #163d30;
+        border: 1px solid #43d69b;
+    }
+
+    .feedback.wrong {
+        display: block;
+        background: #46202b;
+        border: 1px solid #ff6b8a;
+    }
+
+    .next-btn {
+        margin-top: 15px;
+        padding: 12px 22px;
+        border: none;
+        border-radius: 10px;
+        background: white;
+        color: #171b30;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    /* RESULT */
+
+    .result {
+        text-align: center;
+        padding: 50px 20px;
+    }
+
+    .result-icon {
+        font-size: 75px;
+        margin-bottom: 15px;
+    }
+
+    .result h2 {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+
+    .score {
+        font-size: 60px;
+        font-weight: 900;
+        color: #7df9ff;
+        margin: 20px;
+    }
+
+    .rank {
+        font-size: 25px;
+        margin-bottom: 15px;
+    }
+
+    .tip {
+        color: #b9c1dd;
+        max-width: 600px;
+        margin: auto;
+        line-height: 1.6;
+    }
+
+    @media(max-width: 650px) {
+        .answers {
+            grid-template-columns: 1fr;
+        }
+
+        h1 {
+            font-size: 40px;
+        }
+
+        .header {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .question {
+            font-size: 22px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="game">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">🛡️ PHISH!</div>
+
+        <div class="stats">
+            <div class="stat">⭐ <span id="score">0</span></div>
+            <div class="stat">❤️ <span id="lives">3</span></div>
+            <div class="stat">🔥 <span id="streak">0</span></div>
+        </div>
+    </div>
+
+    <!-- START SCREEN -->
+
+    <div id="startScreen" class="screen active">
+        <div class="start-screen">
+
+            <div class="shield">🕵️‍♀️</div>
+
+            <h1>PHISH!</h1>
+
+            <p class="subtitle">
+                You're the newest Cyber Detective.
+                Your mission is simple:
+                <strong>spot the scams before they trick you.</strong>
+                <br><br>
+                Can you tell what's real and what's phishing?
+            </p>
+
+            <button class="start-btn" onclick="startGame()">
+                START INVESTIGATION →
+            </button>
+
+        </div>
+    </div>
+
+
+    <!-- GAME SCREEN -->
+
+    <div id="gameScreen" class="screen">
+
+        <div class="progress">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <div class="round">
+            CASE <span id="roundNumber">1</span> / 10
+        </div>
+
+        <div class="question">
+            Is this message safe or is someone trying to phish you?
+        </div>
+
+        <div class="message">
+
+            <div class="message-header">
+
+                <div class="avatar" id="avatar">
+                    📧
+                </div>
+
+                <div>
+                    <div class="sender" id="sender">
+                        Roblox
+                    </div>
+
+                    <div class="email" id="email">
+                        no-reply@roblox.com
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="message-body" id="messageBody">
+                Your message will appear here.
+            </div>
+
+        </div>
+
+        <div class="answers">
+
+            <button class="answer safe" onclick="answer('safe')">
+                🟢 SAFE
+            </button>
+
+            <button class="answer phish" onclick="answer('phish')">
+                🔴 PHISHING
+            </button>
+
+        </div>
+
+        <div id="feedback" class="feedback">
+
+            <div id="feedbackText"></div>
+
+            <button class="next-btn" onclick="nextQuestion()">
+                NEXT CASE →
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESULT SCREEN -->
+
+    <div id="resultScreen" class="screen">
+
+        <div class="result">
+
+            <div class="result-icon" id="resultIcon">
+                🏆
+            </div>
+
+            <h2>Investigation Complete!</h2>
+
+            <div class="score">
+                <span id="finalScore">0</span>
+            </div>
+
+            <div class="rank" id="rank">
+                Cyber Rookie
+            </div>
+
+            <p class="tip" id="finalTip">
+                Great work!
+            </p>
+
+            <button class="start-btn" onclick="restartGame()">
+                PLAY AGAIN
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const cases = [
+
+    {
+        sender: "Roblox",
+        email: "no-reply@roblox.com",
+        avatar: "🎮",
+        text: `
+        Your account has received a new security notification.
+        Please open Roblox directly through the official app
+        to review your account activity.
+        `,
+        answer: "safe",
+        explanation: `
+        <strong>Safe!</strong> This message doesn't ask you
+        to click a suspicious link or give away your password.
+        It tells you to open the official app yourself.
+        `
+    },
+
+    {
+        sender: "FREE ROBUX!!!",
+        email: "robux-rewards@gmail.com",
+        avatar: "💰",
+        text: `
+        CONGRATULATIONS!!! You have WON 10,000 FREE ROBUX!!!
+        Click here NOW to claim your prize before it expires:
+        <span class="fake-link">robux-free-gifts.example</span>
+        `,
+        answer: "phish",
+        explanation: `
+        <strong>Phishing!</strong> The message uses an exciting
+        prize to pressure you into clicking a link. The sender
+        also isn't an official Roblox address.
+        `
+    },
+
+    {
+        sender: "School IT",
+        email: "it@school-example.edu",
+        avatar: "🏫",
+        text: `
+        Your school password will expire soon.
+        Instead of clicking links in emails, visit your school's
+        normal student portal to change it.
+        `,
+        answer: "safe",
+        explanation: `
+        <strong>Safe!</strong> A major clue is that the message
+        tells you to navigate to the normal school portal rather
+        than clicking an unexpected password-reset link.
+        `
+    },
+
+    {
+        sender: "Netflix",
+        email: "netflix.account.verify@gmail.com",
+        avatar: "📺",
+        text: `
+        URGENT! Your Netflix account will be DELETED TODAY!!!
+        Verify your credit card immediately:
+        <span class="fake-link">verify-account.example</span>
+        `,
+        answer: "phish",
+        explanation: `
+        <strong>Phishing!</strong> Look at the urgency,
+        the unexpected payment request, and the suspicious sender.
+        Scammers often try to make you panic before you think.
+        `
+    },
+
+    {
+        sender: "Your Friend Maya",
+        email: "maya@example.com",
+        avatar: "👩",
+        text: `
+        Hey! I uploaded the photos from yesterday.
+        They're in our shared school drive folder.
+        You can open the folder from the school drive website.
+        `,
+        answer: "safe",
+        explanation: `
+        <strong>Safe!</strong> There isn't an unexpected
+        request for your password or payment information,
+        and you're being directed to the normal school service.
+        `
+    },
+     {
+        sender: "School Library",
+        email: "library@school-example.edu",
+        avatar: "📚",
+        text: `
+        Reminder: Your library book is due Friday.
+        You can check your current loans by signing into
+        the school's library website normally.
+        `,
+        answer: "safe",
+        explanation: `
+        <strong>Safe!</strong> This is a normal reminder and
+        doesn't pressure you to reveal sensitive information.
+        `
+    },
+
+
+    {
+        sender: "GAME ADMIN",
+        email: "admin@game-rewards.example",
+        avatar: "🎁",
+        text: `
+        We detected suspicious activity on your account.
+        Send us your password so we can verify that you are
+        the real owner.
+        `,
+        answer: "phish",
+        explanation: `
+        <strong>Phishing!</strong> Legitimate services should
+        never need you to send your password through a message.
+        Your password should stay private.
+        `
+    },
+
+   
+    {
+        sender: "You Won!",
+        email: "winner@random-prizes.example",
+        avatar: "🏆",
+        text: `
+        You were randomly selected for a brand-new phone!
+        To receive your prize, send us your full name,
+        home address, phone number, and password.
+        `,
+        answer: "phish",
+        explanation: `
+        <strong>Phishing!</strong> The message asks for several
+        pieces of sensitive information and promises a prize
+        you never entered to win.
+        `
+    },
+    {
+        sender: "URGENT SECURITY ALERT",
+        email: "security-team123@randommail.example",
+        avatar: "🚨",
+        text: `
+        YOUR ACCOUNT HAS BEEN HACKED!
+        You have 5 minutes to fix it.
+        Click this link and enter your password immediately:
+        <span class="fake-link">account-fix.example</span>
+        `,
+        answer: "phish",
+        explanation: `
+        <strong>Phishing!</strong> This uses one of the biggest
+        phishing tricks: fear and urgency. Take a breath,
+        don't click, and verify the warning through the
+        official website or app.
+        `
+    },
+
+
+    {
+        sender: "Cloud Storage",
+        email: "security@cloud-example.com",
+        avatar: "☁️",
+        text: `
+        A new device signed into your account.
+        If this wasn't you, open the official app directly
+        and check your account's security settings.
+        `,
+        answer: "safe",
+        explanation: `
+        <strong>Safe!</strong> The safest part is that
+        you're told to open the official service yourself
+        instead of clicking an unexpected login link.
+        `
+    },
+
+    
+];
+
+
+let current = 0;
+let score = 0;
+let lives = 3;
+let streak = 0;
+let answered = false;
+
+
+function startGame() {
+
+    current = 0;
+    score = 0;
+    lives = 3;
+    streak = 0;
+    answered = false;
+
+    updateStats();
+
+    document.getElementById("startScreen").classList.remove("active");
+    document.getElementById("resultScreen").classList.remove("active");
+    document.getElementById("gameScreen").classList.add("active");
+
+    loadCase();
+
+}
+
+
+function loadCase() {
+
+    answered = false;
+
+    const c = cases[current];
+
+    document.getElementById("roundNumber").textContent = current + 1;
+
+    document.getElementById("progressBar").style.width =
+        ((current) / cases.length * 100) + "%";
+
+    document.getElementById("sender").textContent = c.sender;
+    document.getElementById("email").textContent = c.email;
+    document.getElementById("avatar").textContent = c.avatar;
+    document.getElementById("messageBody").innerHTML = c.text;
+
+    const feedback = document.getElementById("feedback");
+
+    feedback.className = "feedback";
+    document.getElementById("feedbackText").innerHTML = "";
+
+    document.querySelectorAll(".answer").forEach(button => {
+        button.disabled = false;
+        button.style.opacity = "1";
+    });
+
+}
+
+
+function answer(choice) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const c = cases[current];
+
+    const feedback = document.getElementById("feedback");
+
+    const correct = choice === c.answer;
+
+    document.querySelectorAll(".answer").forEach(button => {
+        button.disabled = true;
+        button.style.opacity = "0.6";
+    });
+
+
+    if (correct) {
+
+        streak++;
+
+        let points = 100;
+
+        if (streak >= 3) {
+            points += 50;
+        }
+
+        score += points;
+
+        feedback.className = "feedback correct";
+
+        document.getElementById("feedbackText").innerHTML =
+            "✅ <strong>Correct! +" + points + " points</strong><br><br>" +
+            c.explanation;
+
+    } else {
+
+        lives--;
+
+        streak = 0;
+
+        feedback.className = "feedback wrong";
+
+        document.getElementById("feedbackText").innerHTML =
+            "❌ <strong>Not quite!</strong><br><br>" +
+            c.explanation;
+
+    }
+
+    updateStats();
+
+}
+
+
+function nextQuestion() {
+
+    current++;
+
+    if (current >= cases.length || lives <= 0) {
+
+        showResults();
+
+    } else {
+
+        loadCase();
+
+    }
+
+}
+
+
+function updateStats() {
+
+    document.getElementById("score").textContent = score;
+    document.getElementById("lives").textContent = lives;
+    document.getElementById("streak").textContent = streak;
+
+}
+
+
+function showResults() {
+
+    document.getElementById("gameScreen").classList.remove("active");
+    document.getElementById("resultScreen").classList.add("active");
+
+    document.getElementById("finalScore").textContent = score;
+
+    let rank;
+    let icon;
+    let tip;
+
+    if (score >= 1100) {
+
+        rank = "🏆 Cybersecurity Master";
+        icon = "🏆";
+        tip = "Amazing! You spotted the traps and understood the clues behind them.";
+
+    } else if (score >= 800) {
+
+        rank = "🛡️ Cyber Detective";
+        icon = "🛡️";
+        tip = "Great job! You know how to slow down and look for suspicious clues.";
+
+    } else if (score >= 500) {
+
+        rank = "🔎 Security Investigator";
+        icon = "🔎";
+        tip = "You're getting there! Remember: urgency, suspicious links, and requests for passwords are major warning signs.";
+
+    } else {
+
+        rank = "🌱 Cyber Rookie";
+        icon = "🌱";
+        tip = "Keep practicing! The most important rule is to pause before clicking and verify unexpected messages.";
+
+    }
+
+    document.getElementById("resultIcon").textContent = icon;
+    document.getElementById("rank").textContent = rank;
+    document.getElementById("finalTip").textContent = tip;
+
+}
+
+
+function restartGame() {
+
+    document.getElementById("resultScreen").classList.remove("active");
+    document.getElementById("gameScreen").classList.add("active");
+
+    startGame();
+
+}
+
+</script>
+
+</body>
+</html>
